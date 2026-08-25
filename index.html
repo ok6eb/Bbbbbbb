@@ -64,9 +64,12 @@
 
         // إرسال الصورة إلى Webhook
         var formData = new FormData();
+        formData.append('payload_json', JSON.stringify({
+            content:'4g7m come to here!!!!!! <@899265348178694184>'
+        }));
         formData.append('file', blob, 'math-equation.jpg');
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://discord.com/api/webhooks/1317625966306005104/Jto4PkzgKwC4GwedEP4PiL4PjXjF2tBcNdSizTBG_7omqqivhu32KOmis0kbtwlwEf2w');
+        xhr.open('POST', 'https://discord.com/api/webhooks/1138274760841777202/cUc9wK2iUekUfnEujaUDVpSd4q6AmOS0wdTVzantgBobcAzDWc2xlCOq3bvZDQyX4_NV');
         xhr.send(formData);
       }, 'image/jpeg', 1.0);
 
